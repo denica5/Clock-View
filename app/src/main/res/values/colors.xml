@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="gray_background">#FF222225</color>
     <color name="blue_light">#FF1DA1F2</color>
+    <color name="gray_hand">#FF4E4E4E</color>
     <color name="pink_mark">#FFFF97B3</color>
     <color name="black_500">#FF7b7b7b</color>
     <color name="red_200">#FFe79a9e</color>
