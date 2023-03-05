@@ -26,38 +26,36 @@ class ClockView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
 
-
     private val mTicker: Runnable = object : Runnable {
         override fun run() {
             removeCallbacks(this)
 
 
-            if(timeZone == "null") {
+            if (timeZone == "null") {
                 val currentTime: String =
                     SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
                 setClockTime(
                     currentTime.substring(0, 2).toFloat() % 12,
                     currentTime.substring(3, 5).toFloat(),
-                    currentTime.substring(6, 8).toInt())
+                    currentTime.substring(6, 8).toInt()
+                )
             } else {
 
                 val currentTime =
                     SimpleDateFormat("HH:mm:ssZ")
-                currentTime.timeZone =TimeZone.getTimeZone(timeZone)
+                currentTime.timeZone = TimeZone.getTimeZone(timeZone)
                 val curTime = currentTime.format(Date())
                 setClockTime(
                     curTime.substring(0, 2).toFloat() % 12,
                     curTime.substring(3, 5).toFloat(),
-                    curTime.substring(6, 8).toInt())
+                    curTime.substring(6, 8).toInt()
+                )
             }
 
 
             mHandler.postDelayed(this, 1000)
         }
-
-
-        }
-
+    }
 
 
     private var mHandler: Handler = Handler(Looper.getMainLooper())
@@ -102,8 +100,8 @@ class ClockView @JvmOverloads constructor(
     private var timeZone: String = ""
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs,R.styleable.ClockView)
-        timeZone = typedArray.getString(R.styleable.ClockView_timeZone).toString()
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ClockView)
+        timeZone = typedArray.getString(R.styleable.ClockView_time_zone).toString()
         typedArray.recycle()
         mTicker.run()
     }
@@ -294,9 +292,14 @@ class ClockView @JvmOverloads constructor(
         paint.textSize = textSize
         paint.color = textColor
 
-        if(number=="0")(canvas.drawText("12", coordinates[0], coordinates[1]+radius/30, paint))
-        else{
-            canvas.drawText(number, coordinates[0], coordinates[1]+radius/30, paint)
+        if (number == "0") (canvas.drawText(
+            "12",
+            coordinates[0],
+            coordinates[1] + radius / 30,
+            paint
+        ))
+        else {
+            canvas.drawText(number, coordinates[0], coordinates[1] + radius / 30, paint)
         }
     }
 
@@ -318,12 +321,6 @@ class ClockView @JvmOverloads constructor(
     fun stopClock() {
         mHandler.removeCallbacks(mTicker)
     }
-
-
-
-
-
-
 
 
     companion object {
