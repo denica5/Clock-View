@@ -33,12 +33,12 @@ Don't forget to call <strong>startClock()</strong> in OnStart() and <strong>stop
 ```kotlin
    override fun onStart() {
         super.onStart()
-        mClockView.startClock()
+        mClockView1.startClock()
     }
 ```
 ```kotlin
    override fun onStop() {
         super.onStop()
-        mClockView.stopClock()
+        mClockView1.stopClock()
     }
 ```
