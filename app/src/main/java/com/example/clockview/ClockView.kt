@@ -3,7 +3,9 @@ package com.example.clockview
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Paint.Align
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -24,8 +27,41 @@ class ClockView @JvmOverloads constructor(
 
 
 
-    private var mHandler: Handler = Handler()
-    private var mTimeUpdater: Runnable
+    private val mTicker: Runnable = object : Runnable {
+        override fun run() {
+            removeCallbacks(this)
+
+
+            if(timeZone == "null") {
+                val currentTime: String =
+                    SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+                setClockTime(
+                    currentTime.substring(0, 2).toFloat() % 12,
+                    currentTime.substring(3, 5).toFloat(),
+                    currentTime.substring(6, 8).toInt())
+            } else {
+
+                val currentTime =
+                    SimpleDateFormat("HH:mm:ssZ")
+                currentTime.timeZone =TimeZone.getTimeZone(timeZone)
+                val curTime = currentTime.format(Date())
+                setClockTime(
+                    curTime.substring(0, 2).toFloat() % 12,
+                    curTime.substring(3, 5).toFloat(),
+                    curTime.substring(6, 8).toInt())
+            }
+
+
+            mHandler.postDelayed(this, 1000)
+        }
+
+
+        }
+
+
+
+    private var mHandler: Handler = Handler(Looper.getMainLooper())
+
     private val paintFillCircle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = ContextCompat.getColor(context, R.color.gray_background)
@@ -34,6 +70,7 @@ class ClockView @JvmOverloads constructor(
     private val paintMarkMinutes = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         strokeWidth = 1.5f
+
         color = ContextCompat.getColor(context, R.color.pink_mark)
     }
 
@@ -51,6 +88,7 @@ class ClockView @JvmOverloads constructor(
     }
     private val paintHandHour = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
+        textAlign = Align.CENTER
     }
 
 
@@ -61,24 +99,13 @@ class ClockView @JvmOverloads constructor(
     private var radius = 0f
     private var centerWidth = 0
     private var centerHeight = 0
-
+    private var timeZone: String = ""
 
     init {
-
-        mTimeUpdater = object : Runnable {
-            override fun run() {
-
-                val currentTime: String =
-                    SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-                setClockTime(
-                    currentTime.substring(0, 2).toFloat() % 12,
-                    currentTime.substring(3, 5).toFloat(),
-                    currentTime.substring(6, 8).toInt()
-                )
-
-                mHandler.postDelayed(this, 1000)
-            }
-        }
+        val typedArray = context.obtainStyledAttributes(attrs,R.styleable.ClockView)
+        timeZone = typedArray.getString(R.styleable.ClockView_timeZone).toString()
+        typedArray.recycle()
+        mTicker.run()
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -258,15 +285,19 @@ class ClockView @JvmOverloads constructor(
         textColor: Int
 
     ) {
+
         val coordinates = calculateCoords(STEP_30, position, endPosition)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
-            textAlign = Paint.Align.CENTER
+            textAlign = Align.CENTER
         }
         paint.textSize = textSize
         paint.color = textColor
 
-        canvas.drawText(number, coordinates[0], coordinates[1]+radius/30, paint)
+        if(number=="0")(canvas.drawText("12", coordinates[0], coordinates[1]+radius/30, paint))
+        else{
+            canvas.drawText(number, coordinates[0], coordinates[1]+radius/30, paint)
+        }
     }
 
 
@@ -280,12 +311,12 @@ class ClockView @JvmOverloads constructor(
 
 
     fun startClock() {
-        mHandler.post(mTimeUpdater)
+        mHandler.post(mTicker)
     }
 
 
     fun stopClock() {
-        mHandler.removeCallbacks(mTimeUpdater)
+        mHandler.removeCallbacks(mTicker)
     }
 
 
