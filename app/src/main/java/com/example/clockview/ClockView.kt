@@ -7,16 +7,10 @@ import android.os.Handler
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import android.view.ViewDebug.ExportedProperty
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
-import java.time.Duration
-import java.time.Instant
-import java.time.ZoneId
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -31,7 +25,7 @@ class ClockView @JvmOverloads constructor(
 
 
     private var mHandler: Handler = Handler()
-    private lateinit var mTimeUpdater: Runnable
+    private var mTimeUpdater: Runnable
     private val paintFillCircle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = ContextCompat.getColor(context, R.color.gray_background)
@@ -70,9 +64,10 @@ class ClockView @JvmOverloads constructor(
 
 
     init {
+
         mTimeUpdater = object : Runnable {
             override fun run() {
-                // update clock time data
+
                 val currentTime: String =
                     SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
                 setClockTime(
@@ -80,7 +75,7 @@ class ClockView @JvmOverloads constructor(
                     currentTime.substring(3, 5).toFloat(),
                     currentTime.substring(6, 8).toInt()
                 )
-                // recall update runnable after 1 sec (1000ms)
+
                 mHandler.postDelayed(this, 1000)
             }
         }
@@ -108,7 +103,7 @@ class ClockView @JvmOverloads constructor(
         val minuteMarkLength = radius / 30f
         repeat(60) {
             if (it % 5 != 0) {
-                drawMarks(canvas, 6, paintMarkMinutes, it, padding, minuteMarkLength)
+                drawMarks(canvas, STEP_6, paintMarkMinutes, it, padding, minuteMarkLength)
 
             }
         }
@@ -116,22 +111,20 @@ class ClockView @JvmOverloads constructor(
         Log.d("Check", "$radius")
         repeat(12) {
             if (it % 3 == 0) {
-                drawMarks(canvas, 30, paintMarkHoursPink, it, padding, hourMarkLengthPink)
+                drawMarks(canvas, STEP_30, paintMarkHoursPink, it, padding, hourMarkLengthPink)
                 drawNumbers(
                     canvas,
                     "$it",
-                    30,
                     it.toFloat(),
                     hourMarkLengthPink * 3,
                     radius / 10,
                     ContextCompat.getColor(context, R.color.pink_mark)
                 )
             } else {
-                drawMarks(canvas, 30, paintMarkHoursBlue, it, padding, minuteMarkLength)
+                drawMarks(canvas, STEP_30, paintMarkHoursBlue, it, padding, minuteMarkLength)
                 drawNumbers(
                     canvas,
                     "$it",
-                    30,
                     it.toFloat(),
                     hourMarkLengthPink * 3,
                     radius / 15,
@@ -218,21 +211,21 @@ class ClockView @JvmOverloads constructor(
 
         result.add(
             0,
-            centerWidth + (radius - padding) * cos(((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat())
+            centerWidth + (radius - padding) * cos(((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat())
         )
         result.add(
             1,
-            centerHeight - (radius - padding) * sin(((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat())
+            centerHeight - (radius - padding) * sin(((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat())
         )
         result.add(
             2,
             centerWidth + (radius - markLength - padding) * cos(
-                ((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat()
+                ((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat()
             )
         )
         result.add(
             3,
-            centerHeight - (radius - markLength - padding) * sin(((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat())
+            centerHeight - (radius - markLength - padding) * sin(((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat())
         )
         return result
     }
@@ -245,11 +238,11 @@ class ClockView @JvmOverloads constructor(
         val result = ArrayList<Float>(2)
         result.add(
             0,
-            centerWidth + (radius - padding - endPosition) * cos(((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat())
+            centerWidth + (radius - padding - endPosition) * cos(((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat())
         )
         result.add(
             1,
-            centerHeight - (radius - padding - endPosition) * sin(((90 - step * position) * FROM_RAD_TO_DEGREES).toFloat())
+            centerHeight - (radius - padding - endPosition) * sin(((START_ANGLE - step * position) * FROM_RAD_TO_DEGREES).toFloat())
         )
         return result
     }
@@ -258,14 +251,14 @@ class ClockView @JvmOverloads constructor(
     private fun drawNumbers(
         canvas: Canvas,
         number: String,
-        step: Int,
+
         position: Float,
         endPosition: Float,
         textSize: Float,
         textColor: Int
 
     ) {
-        val coordinates = calculateCoords(step, position, endPosition)
+        val coordinates = calculateCoords(STEP_30, position, endPosition)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.FILL
             textAlign = Paint.Align.CENTER
