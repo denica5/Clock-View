@@ -9,7 +9,7 @@ Layout implementation
   
   ```xml
     <com.example.clockview.ClockView
-        android:id="@+id/ClockView_1"
+        android:id="@+id/clock_view_1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:timeZone="Europe/Moscow"
