@@ -9,7 +9,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-         mClockView1 = findViewById(R.id.ClockView_1)
+         mClockView1 = findViewById(R.id.clock_view_1)
         setContentView(R.layout.activity_main)
 
 
